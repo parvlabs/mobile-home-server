@@ -55,7 +55,7 @@ An ultra-lightweight, self-hosted server and dashboard designed to run seamlessl
    ```
 3. **Clone the repository**:
    ```bash
-   git clone https://github.com/<YOUR_USERNAME>/mobile-home-server.git ~/server
+   git clone https://github.com/parvlabs/mobile-home-server.git ~/server
    cd ~/server
    ```
 4. **Install Python dependencies**:
@@ -78,7 +78,7 @@ An ultra-lightweight, self-hosted server and dashboard designed to run seamlessl
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/<YOUR_USERNAME>/mobile-home-server.git
+   git clone https://github.com/parvlabs/mobile-home-server.git
    cd mobile-home-server
    ```
 2. **Install dependencies**:
