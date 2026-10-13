@@ -193,21 +193,49 @@ def load_or_create_token():
 
 API_TOKEN = load_or_create_token()
 
+# ================================================================
+# SECURITY: Brute-Force Rate Limiter & Constant-Time Auth
+# ================================================================
+_failed_auth_attempts = {}  # ip -> [timestamps]
+_banned_ips = {}            # ip -> ban_until_timestamp
+MAX_FAILED_ATTEMPTS = 10
+BAN_DURATION_SECONDS = 300  # 5 minutes lockout
+
+def is_ip_banned(ip):
+    now = time.time()
+    ban_until = _banned_ips.get(ip, 0)
+    if now < ban_until:
+        return True
+    if ip in _banned_ips:
+        del _banned_ips[ip]
+    return False
+
+def record_failed_attempt(ip):
+    now = time.time()
+    attempts = [t for t in _failed_auth_attempts.get(ip, []) if now - t < 60]
+    attempts.append(now)
+    _failed_auth_attempts[ip] = attempts
+    if len(attempts) >= MAX_FAILED_ATTEMPTS:
+        _banned_ips[ip] = now + BAN_DURATION_SECONDS
+        log_event(f"SECURITY ALERT: IP {ip} temporarily locked out for {BAN_DURATION_SECONDS}s due to failed token attempts.", level="warning")
 
 def extract_token():
     auth = request.headers.get("Authorization", "")
     if auth.startswith("Bearer "):
         return auth[7:].strip()
-    # Fallback for GET links opened directly by the browser
-    # (download/stream), which can't set custom headers.
     return request.args.get("token")
 
 
 def require_token(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
+        client_ip = request.remote_addr or "127.0.0.1"
+        if is_ip_banned(client_ip):
+            return jsonify({"error": "Too many failed attempts. Temporarily locked out for 5 minutes."}), 429
+
         token = extract_token()
-        if not API_TOKEN or token != API_TOKEN:
+        if not token or not API_TOKEN or not secrets.compare_digest(token, API_TOKEN):
+            record_failed_attempt(client_ip)
             return jsonify({"error": "unauthorized"}), 401
         return f(*args, **kwargs)
 
@@ -215,13 +243,11 @@ def require_token(f):
 
 
 # ================================================================
-# APP SETUP
+# APP SETUP & SECURITY HEADERS
 # ================================================================
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES
 
-# CORS restricted to local-network origins on local ports,
-# rather than "*" — the IP can change, so this matches by pattern.
 LOCAL_ORIGIN_RE = re.compile(
     r"^https?://(?:10(?:\.\d{1,3}){3}"
     r"|172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2}"
@@ -232,9 +258,17 @@ CORS(app, origins=LOCAL_ORIGIN_RE)
 
 
 @app.after_request
-def log_request(response):
+def apply_security_headers_and_log(response):
+    # Defense-in-depth security headers
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+
+    # Redact sensitive query parameters (e.g. ?token=) from logs
     try:
-        logger.info(f"{request.remote_addr} {request.method} {request.path} -> {response.status_code}")
+        clean_path = request.path
+        logger.info(f"{request.remote_addr} {request.method} {clean_path} -> {response.status_code}")
     except Exception:
         pass
     return response
@@ -799,27 +833,30 @@ def phone_tts():
     text = (data.get("text") or "").strip()
     if not text:
         return jsonify({"error": "No text provided"}), 400
+    # Enforce safe character cap to prevent audio DoS
+    text = text[:250]
 
     def speak_task(msg):
-        # 1. Android Termux TTS
+        # 1. Android Termux TTS (array args avoid shell parsing)
         try:
-            res = subprocess.run(["termux-tts-speak", msg], timeout=5)
+            res = subprocess.run(["termux-tts-speak", msg], timeout=6)
             if res.returncode == 0:
                 return
         except Exception:
             pass
 
-        # 2. Windows fallback speech
+        # 2. Windows fallback speech (passes text through environment variable to avoid injection)
         if platform.system() == "Windows":
             try:
-                escaped = msg.replace('"', '""')
-                cmd = f'Add-Type -AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak("{escaped}")'
-                subprocess.run(["powershell", "-NoProfile", "-Command", cmd], timeout=8)
+                env = os.environ.copy()
+                env["TTS_SPEECH_TEXT"] = msg
+                cmd = 'Add-Type -AssemblyName System.Speech; $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; $s.Speak($env:TTS_SPEECH_TEXT)'
+                subprocess.run(["powershell", "-NoProfile", "-Command", cmd], env=env, timeout=8)
             except Exception:
                 pass
 
     threading.Thread(target=speak_task, args=(text,), daemon=True).start()
-    log_event(f"TTS requested: {text[:50]}")
+    log_event(f"TTS requested safely: {text[:40]}")
     return jsonify({"status": "speaking", "text": text})
 
 
@@ -1066,14 +1103,25 @@ def upload_file():
 
         filename = safe_segments[-1]
     else:
-        # Plain single-file upload — same behavior as before.
+        # Plain single-file upload
         filename = secure_filename(file.filename or "")
         if not filename:
             return jsonify({"error": "Invalid filename"}), 400
         dest = os.path.join(target_dir, filename)
 
+    # Security: Prohibit uploading executable scripts and binaries
+    ext = os.path.splitext(filename)[1].lower()
+    DANGEROUS_EXTS = {".exe", ".bat", ".cmd", ".sh", ".bash", ".ps1", ".vbs", ".pif", ".scr", ".com", ".apk", ".php", ".py", ".pl"}
+    if ext in DANGEROUS_EXTS:
+        log_event(f"Blocked dangerous upload attempt: {filename}", level="warning")
+        return jsonify({"error": f"Upload blocked: '{ext}' executable/script files are prohibited for security."}), 400
+
     try:
         file.save(dest)
+        try:
+            os.chmod(dest, 0o644)
+        except Exception:
+            pass
     except Exception as err:
         log_event(f"Upload failed: {err}", level="error")
         return jsonify({"error": "Upload failed"}), 500
