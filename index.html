@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile Home Server</title>
+<style>
+  :root {
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --gap: 16px;
+    --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Dark Theme (Default) */
+  [data-theme="dark"] {
+    --bg: #0b0d11;
+    --surface: #141820;
+    --surface-hover: #1b212c;
+    --border: #232a38;
+    --border-light: #2c3647;
+    --text-primary: #f0f4f8;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --accent: #00dc82;
+    --accent-bg: rgba(0, 220, 130, 0.12);
+    --green: #10b981;
+    --green-bg: rgba(16, 185, 129, 0.12);
+    --red: #ef4444;
+    --red-bg: rgba(239, 68, 68, 0.12);
+    --amber: #f59e0b;
+    --amber-bg: rgba(245, 158, 11, 0.12);
+    --cyan: #06b6d4;
+    --cyan-bg: rgba(6, 182, 212, 0.12);
+    --purple: #8b5cf6;
+    --purple-bg: rgba(139, 92, 246, 0.12);
+    --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Light Theme */
+  [data-theme="light"] {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --surface-hover: #f1f5f9;
+    --border: #e2e8f0;
+    --border-light: #cbd5e1;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --accent: #059669;
+    --accent-bg: rgba(5, 150, 105, 0.1);
+    --green: #059669;
+    --green-bg: #ecfdf5;
+    --red: #dc2626;
+    --red-bg: #fef2f2;
+    --amber: #d97706;
+    --amber-bg: #fffbeb;
+    --cyan: #0891b2;
+    --cyan-bg: #ecfeff;
+    --purple: #7c3aed;
+    --purple-bg: #f5f3ff;
+    --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+    transition: background var(--transition), color var(--transition);
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-icon {
+    width: 28px;
+    height: 28px;
+    background: var(--accent);
+    color: #000;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  header h1 {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .live-clock {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    border: 1px solid var(--border);
+  }
+
+  .btn-icon {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all var(--transition);
+  }
+
+  .btn-icon:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-light);
+  }
+
+  .btn-accent {
+    background: var(--accent);
+    color: #000;
+    border: 1px solid var(--accent);
+    font-weight: 600;
+  }
+
+  .btn-accent:hover {
+    filter: brightness(1.1);
+  }
+
+  main {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .section {
+    margin-bottom: 28px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--gap);
+  }
+
+  .grid-4 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--gap);
+  }
+
+  .row-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .row:last-child { border-bottom: none; }
+
+  .row-label {
+    color: var(--text-secondary);
+    font-size: 13.5px;
+  }
+
+  .row-value {
+    font-weight: 600;
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 13.5px;
+  }
+
+  /* Badges & Dots */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+
+  .dot-online { background: var(--green); }
+  .dot-offline { background: var(--red); }
+  .dot-warn { background: var(--amber); }
+  .dot-unknown { background: var(--text-muted); }
+
+  .badge-online { color: var(--green); background: var(--green-bg); border-color: rgba(16, 185, 129, 0.2); }
+  .badge-offline { color: var(--red); background: var(--red-bg); border-color: rgba(239, 68, 68, 0.2); }
+  .badge-warn { color: var(--amber); background: var(--amber-bg); border-color: rgba(245, 158, 11, 0.2); }
+  .badge-unknown { color: var(--text-secondary); background: var(--surface-hover); border-color: var(--border); }
+
+  /* Resource Meters */
+  .meter-card {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .meter-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .meter-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .meter-value {
+    font-size: 18px;
+    font-weight: 700;
+    font-family: var(--mono);
+  }
+
+  .meter-track {
+    height: 8px;
+    background: var(--surface-hover);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .meter-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+
+  .meter-fill.warn { background: var(--amber); }
+  .meter-fill.danger { background: var(--red); }
+
+  .meter-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+  }
+
+  /* Battery Guard Banner */
+  .guard-banner {
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    background: var(--amber-bg);
+    border: 1px solid var(--amber);
+    color: var(--amber);
+  }
+
+  /* Telemetry Canvas Chart */
+  .chart-card {
+    padding: 16px 20px;
+    margin-top: 16px;
+  }
+
+  .chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .chart-legend {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    font-family: var(--mono);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  canvas {
+    width: 100%;
+    height: 140px;
+    display: block;
+  }
+
+  /* Phone Superpowers */
+  .superpower-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--gap);
+  }
+
+  .camera-viewfinder {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    background: #000;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+  }
+
+  .camera-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .camera-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: var(--mono);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .input-text {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 7px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    outline: none;
+  }
+
+  .input-text:focus {
+    border-color: var(--accent);
+  }
+
+  /* File Manager */
+  .breadcrumbs {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 8px 12px;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
+    word-break: break-all;
+  }
+
+  .file-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 13px;
+  }
+
+  .file-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  .file-row:hover {
+    background: var(--surface-hover);
+  }
+
+  .file-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .file-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+
+  .file-name.is-dir {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .file-meta {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-left: 12px;
+    flex-shrink: 0;
+  }
+
+  .file-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .btn-sm {
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .btn-sm:hover {
+    background: var(--surface-hover);
+  }
+
+  .btn-sm.danger {
+    color: var(--red);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  .btn-sm.danger:hover {
+    background: var(--red-bg);
+  }
+
+  /* Log View */
+  .log-view {
+    background: #06080a;
+    color: #cbd5e1;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    border: 1px solid var(--border);
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .modal-overlay.open {
+    display: flex;
+  }
+
+  .modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    max-width: 440px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    text-align: center;
+  }
+
+  .qr-frame {
+    background: #fff;
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    display: inline-block;
+    margin: 16px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .qr-frame img {
+    display: block;
+    width: 200px;
+    height: 200px;
+  }
+
+  @media (max-width: 640px) {
+    header { padding: 12px 16px; }
+    main { padding: 16px; }
+    .grid-2, .superpower-grid { grid-template-columns: 1fr; }
+    .row { padding: 10px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <div class="brand-icon">⚡</div>
+    <h1 id="headerTitle">Mobile Server</h1>
+  </div>
+  <div class="header-actions">
+    <span class="live-clock" id="liveClock">--:--:--</span>
+    <button class="btn-icon" id="btnQR" title="Scan QR Code to connect from other devices">📱 QR Connect</button>
+    <button class="btn-icon" id="btnThemeToggle" title="Toggle Dark/Light Mode">🌓 Theme</button>
+    <button class="btn-icon" id="btnSettings" title="API Security Token">⚙️ Token</button>
+    <button class="btn-icon btn-accent" id="btnRefresh">🔄 Refresh</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- Battery Health Guard Alert Banner -->
+  <div id="batteryGuardBanner" class="guard-banner" style="display:none;">
+    <span>⚠️</span>
+    <div style="flex:1;" id="batteryGuardMsg">Battery state monitoring active.</div>
+  </div>
+
+  <!-- 1. Live Telemetry & System Overview -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">📊 Live System Resources</div>
+      <span class="file-meta" id="pollIndicator">Auto-polling (5s)</span>
+    </div>
+    <div class="grid-4">
+      <div class="card meter-card">
+        <div class="meter-top">
+          <span class="meter-label">CPU Load</span>
+          <span class="meter-value" id="cpuValue">--%</span>
+        </div>
+        <div class="meter-track"><div class="meter-fill" id="cpuFill"></div></div>
+        <div class="meter-sub" id="cpuSub">Telemetry loading...</div>
+      </div>
+
+      <div class="card meter-card">
+        <div class="meter-top">
+          <span class="meter-label">RAM Usage</span>
+          <span class="meter-value" id="ramValue">--%</span>
+        </div>
+        <div class="meter-track"><div class="meter-fill" id="ramFill"></div></div>
+        <div class="meter-sub" id="ramSub">Telemetry loading...</div>
+      </div>
+
+      <div class="card meter-card">
+        <div class="meter-top">
+          <span class="meter-label">Storage Usage</span>
+          <span class="meter-value" id="storageValue">--%</span>
+        </div>
+        <div class="meter-track"><div class="meter-fill" id="storageFill"></div></div>
+        <div class="meter-sub" id="storageSub">Telemetry loading...</div>
+      </div>
+
+      <div class="card meter-card">
+        <div class="meter-top">
+          <span class="meter-label">Battery Level</span>
+          <span class="meter-value" id="batteryValue">--%</span>
+        </div>
+        <div class="meter-track"><div class="meter-fill" id="batteryFill"></div></div>
+        <div class="meter-sub" id="batterySub">Telemetry loading...</div>
+      </div>
+    </div>
+
+    <!-- Live 60-Second Real-Time Telemetry Graph -->
+    <div class="card chart-card">
+      <div class="chart-header">
+        <span class="meter-label">60-Second Telemetry History</span>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#00dc82;"></div>CPU %</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6;"></div>RAM %</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#06b6d4;"></div>Traffic (KB/s)</div>
+        </div>
+      </div>
+      <canvas id="telemetryChart"></canvas>
+    </div>
+  </section>
+
+  <!-- 2. Phone Superpowers (Hardware Controls via Termux:API) -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">🚀 Phone Superpowers (Hardware Controls)</div>
+    </div>
+    <div class="superpower-grid">
+
+      <!-- Camera Security Monitor -->
+      <div class="card" style="padding:16px;">
+        <div style="font-weight:600; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+          <span>📸 Camera Security Viewfinder</span>
+          <label style="font-size:12px; font-weight:normal; display:flex; align-items:center; gap:6px; cursor:pointer;">
+            <input type="checkbox" id="cctvToggle"> CCTV Auto-Refresh (5s)
+          </label>
+        </div>
+        <div class="camera-viewfinder">
+          <img id="cameraImg" class="camera-img" src="" alt="Camera Preview Frame" />
+          <div class="camera-badge">
+            <span class="dot dot-online"></span>
+            <span id="camLabel">CAMERA 0 [BACK]</span>
+          </div>
+        </div>
+        <div class="toolbar">
+          <select id="cameraSelect" class="btn-sm" style="height:32px;">
+            <option value="0">Back Camera (0)</option>
+            <option value="1">Front Camera (1)</option>
+          </select>
+          <button class="btn-sm btn-accent" id="btnSnapPhoto">📸 Capture Frame</button>
+          <span class="file-meta" id="camTimestamp">--</span>
+        </div>
+      </div>
+
+      <!-- Remote Torch, TTS & Sound Alerts -->
+      <div class="card" style="padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+          <div style="font-weight:600; margin-bottom:12px;">🔦 Remote Flashlight / Torch</div>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; padding:10px 14px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm);">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span id="torchStatusDot" class="dot dot-offline"></span>
+              <span id="torchStatusText" style="font-weight:500;">Flashlight: OFF</span>
+            </div>
+            <button class="btn-sm" id="btnToggleTorch">Toggle Torch</button>
+          </div>
+
+          <div style="font-weight:600; margin-bottom:10px;">🗣️ Remote Voice Alert (Text-to-Speech)</div>
+          <div style="display:flex; gap:8px; margin-bottom:16px;">
+            <input type="text" id="ttsInput" class="input-text" placeholder="Message to speak through phone speaker..." />
+            <button class="btn-sm btn-accent" id="btnSpeak">🔊 Speak</button>
+          </div>
+
+          <div style="font-weight:600; margin-bottom:10px;">📳 Haptic Vibrate Alert</div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-sm" id="btnVibrate">Vibrate Phone (1s)</button>
+          </div>
+        </div>
+
+        <!-- Cloudflare Zero-Config Remote Tunnel -->
+        <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
+          <div style="font-weight:600; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+            <span>🌐 Cloudflare Remote Tunnel</span>
+            <span class="badge badge-offline" id="tunnelBadge">Offline</span>
+          </div>
+          <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">
+            Secure global HTTPS access without port forwarding or exposing your home IP.
+          </div>
+          <div id="tunnelUrlBox" style="display:none; margin-bottom:10px; padding:8px 12px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); font-family:var(--mono); font-size:12px; word-break:break-all;">
+            <a id="tunnelLink" href="#" target="_blank" style="color:var(--accent); text-decoration:none;"></a>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-sm btn-accent" id="btnStartTunnel">🚀 Start Tunnel</button>
+            <button class="btn-sm danger" id="btnStopTunnel" style="display:none;">Stop Tunnel</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 3. Server Overview & Device Telemetry -->
+  <section class="section">
+    <div class="grid-2">
+      <!-- Server Overview -->
+      <div class="card">
+        <div class="row" style="background:var(--surface-hover);">
+          <span style="font-weight:700;">Server Overview</span>
+          <span class="badge badge-online" id="serverStatusBadge"><span class="dot dot-online"></span> Online</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Local IP Address</span>
+          <span class="row-value" id="serverAddress">--</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Web / Dashboard Port</span>
+          <span class="row-value" id="serverPort">8080</span>
+        </div>
+        <div class="row">
+          <span class="row-label">System Uptime</span>
+          <span class="row-value" id="serverUptime">--</span>
+        </div>
+        <div class="row">
+          <span class="row-label">SSH Service</span>
+          <span class="badge badge-unknown" id="sshStatusBadge"><span class="dot dot-unknown"></span> Unknown</span>
+        </div>
+      </div>
+
+      <!-- Device Information -->
+      <div class="card">
+        <div class="row" style="background:var(--surface-hover);">
+          <span style="font-weight:700;">Device Information</span>
+          <span class="badge badge-online"><span class="dot dot-online"></span> Active</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Hardware Model</span>
+          <span class="row-value" id="deviceName">Detecting...</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Operating System</span>
+          <span class="row-value" id="osVersion">Detecting...</span>
+        </div>
+        <div class="row">
+          <span class="row-label">CPU Architecture</span>
+          <span class="row-value" id="deviceArch">--</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Network Interface</span>
+          <span class="row-value" id="netInterface">--</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Services Grid -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">⚡ Server Services</div>
+    </div>
+    <div class="grid-4" id="serviceGrid">
+      <div class="card" style="padding:16px; text-align:center; color:var(--text-muted);">Loading services...</div>
+    </div>
+  </section>
+
+  <!-- 5. File Manager & Media Sharing -->
+  <section class="section" id="fileManagerSection">
+    <div class="section-header">
+      <div class="section-title">📁 File Manager &amp; Media Sharing</div>
+      <span class="file-meta">Storage Root: ~/server/shared</span>
+    </div>
+    <div class="card" style="padding:18px;">
+      <div class="breadcrumbs" id="fileBreadcrumbs">Root</div>
+      <div class="toolbar">
+        <input type="file" id="fileUploadInput" style="display:none;">
+        <input type="file" id="folderUploadInput" webkitdirectory directory multiple hidden>
+        <button class="btn-sm btn-accent" id="btnUploadFile">Upload File</button>
+        <button class="btn-sm" id="btnUploadFolder">Upload Folder</button>
+        <button class="btn-sm" id="btnNewFolder">New Folder</button>
+        <button class="btn-sm" id="btnRefreshFiles">Refresh</button>
+      </div>
+      <div class="file-meta" id="uploadProgress" style="margin:8px 0; color:var(--accent);"></div>
+      <div class="file-table" id="fileTable">
+        <div style="padding:20px; text-align:center; color:var(--text-muted);">Loading files...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Server Controls -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">⚙️ Server Controls</div>
+    </div>
+    <div class="card" style="padding:16px;">
+      <div class="toolbar">
+        <span class="row-label">Service:</span>
+        <select class="btn-sm" id="controlServiceSelect" style="height:32px;">
+          <option value="web">Web Server (8080)</option>
+          <option value="api">Flask API (5000)</option>
+          <option value="ssh">SSH Server (8022)</option>
+          <option value="all">All Services</option>
+        </select>
+        <button class="btn-sm" id="btnControlStart">Start</button>
+        <button class="btn-sm danger" id="btnControlStop">Stop</button>
+        <button class="btn-sm btn-accent" id="btnControlRestart">Restart</button>
+        <span class="file-meta" id="controlStatus"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Real-Time Log Viewer -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">📜 Real-Time Server Logs</div>
+    </div>
+    <div class="card" style="padding:16px;">
+      <div class="toolbar" style="margin-top:0; margin-bottom:12px;">
+        <select class="btn-sm" id="logFileSelect" style="height:32px;">
+          <option value="server.log">server.log (API events)</option>
+          <option value="api-stdout.log">api-stdout.log (Flask output)</option>
+          <option value="dashboard-stdout.log">dashboard-stdout.log (HTTP server)</option>
+        </select>
+        <button class="btn-sm" id="btnRefreshLogs">Refresh Logs</button>
+        <button class="btn-sm danger" id="btnClearLogs">Clear Log File</button>
+        <label style="font-size:12px; margin-left:auto; display:flex; align-items:center; gap:6px;">
+          <input type="checkbox" id="autoRefreshLogs" checked> Auto-refresh (3s)
+        </label>
+      </div>
+      <pre class="log-view" id="logView">Loading server logs...</pre>
+    </div>
+  </section>
+
+</main>
+
+<!-- QR Connect Modal -->
+<div class="modal-overlay" id="qrModal">
+  <div class="modal-box">
+    <h3 style="margin:0 0 8px 0;">📱 Connect from Phone / Wi-Fi</h3>
+    <p style="font-size:13px; color:var(--text-muted); margin:0;">Scan with any phone camera on the same Wi-Fi network:</p>
+    <div class="qr-frame">
+      <img id="qrModalImg" src="" alt="Wi-Fi QR Code" />
+    </div>
+    <div style="font-family:var(--mono); font-size:13px; margin-bottom:16px;" id="qrUrlText">--</div>
+    <div style="display:flex; gap:8px; justify-content:center;">
+      <button class="btn-sm btn-accent" id="btnCopyQRUrl">Copy URL</button>
+      <button class="btn-sm" id="btnCloseQR">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG & STATE
+   ============================================================ */
+const API_BASE_URL = (window.location.port === '5000')
+  ? ''
+  : `http://${window.location.hostname || 'localhost'}:5000`;
+const STATUS_ENDPOINT = `${API_BASE_URL}/api/status`;
+const REFRESH_INTERVAL_MS = 5000;
+const FETCH_TIMEOUT_MS = 4000;
+
+let apiToken = localStorage.getItem('a23_api_token') || '';
+let currentPath = '';
+let cctvInterval = null;
+let logInterval = null;
+let chartHistory = { cpu: [], ram: [], traffic: [], timestamps: [] };
+
+/* ------------------------------------------------------------
+   Theme System
+------------------------------------------------------------ */
+function initTheme() {
+  const saved = localStorage.getItem('server_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+}
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('server_theme', next);
+}
+document.getElementById('btnThemeToggle').addEventListener('click', toggleTheme);
+initTheme();
+
+/* ------------------------------------------------------------
+   Live Clock
+------------------------------------------------------------ */
+function updateClock() {
+  document.getElementById('liveClock').textContent = new Date().toLocaleTimeString();
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ------------------------------------------------------------
+   Token / Auth Helpers
+------------------------------------------------------------ */
+function ensureToken() { return !!apiToken; }
+function promptForToken() {
+  const value = prompt('Enter the API Access Token (found in .token or startup terminal):', apiToken || '');
+  if (value !== null && value.trim() !== '') {
+    apiToken = value.trim();
+    localStorage.setItem('a23_api_token', apiToken);
+    return true;
+  }
+  return false;
+}
+function authHeader() {
+  return apiToken ? { Authorization: `Bearer ${apiToken}` } : {};
+}
+document.getElementById('btnSettings').addEventListener('click', () => promptForToken());
+
+/* ------------------------------------------------------------
+   Fetch with Timeout Helper
+------------------------------------------------------------ */
+async function fetchJson(url, options = {}) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
+  }
+}
+
+/* ------------------------------------------------------------
+   Real-Time 60s Telemetry Canvas Chart
+------------------------------------------------------------ */
+const chartCanvas = document.getElementById('telemetryChart');
+const ctx = chartCanvas.getContext('2d');
+
+function resizeChart() {
+  chartCanvas.width = chartCanvas.offsetWidth * window.devicePixelRatio;
+  chartCanvas.height = chartCanvas.offsetHeight * window.devicePixelRatio;
+}
+window.addEventListener('resize', resizeChart);
+resizeChart();
+
+function drawTelemetryChart() {
+  const w = chartCanvas.width;
+  const h = chartCanvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  const len = chartHistory.cpu.length;
+  if (len < 2) return;
+
+  const step = w / 12; // 12 samples = 60s at 5s interval
+
+  // Grid lines
+  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border') || '#232a38';
+  ctx.lineWidth = 1;
+  for (let y = 0.25; y <= 1; y += 0.25) {
+    ctx.beginPath();
+    ctx.moveTo(0, h * y);
+    ctx.lineTo(w, h * y);
+    ctx.stroke();
+  }
+
+  function renderLine(data, color, maxVal = 100) {
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5 * window.devicePixelRatio;
+    ctx.lineJoin = 'round';
+
+    for (let i = 0; i < len; i++) {
+      const val = Math.max(0, Math.min(maxVal, data[i] || 0));
+      const x = i * step;
+      const y = h - (val / maxVal) * (h * 0.85) - (h * 0.05);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  renderLine(chartHistory.cpu, '#00dc82', 100);
+  renderLine(chartHistory.ram, '#8b5cf6', 100);
+  renderLine(chartHistory.traffic, '#06b6d4', 500); // scaled to 500 KB/s
+}
+
+/* ------------------------------------------------------------
+   Telemetry Data Polling
+------------------------------------------------------------ */
+async function fetchTelemetry() {
+  try {
+    const data = await fetchJson(STATUS_ENDPOINT);
+
+    // Update Header Device Name
+    if (data.device) {
+      document.getElementById('headerTitle').textContent = data.device;
+      document.getElementById('deviceName').textContent = data.device;
+    }
+    if (data.os_version) document.getElementById('osVersion').textContent = data.os_version;
+    if (data.arch) document.getElementById('deviceArch').textContent = data.arch;
+    if (data.network) document.getElementById('serverAddress').textContent = data.network;
+    if (data.network_interface) document.getElementById('netInterface').textContent = data.network_interface;
+
+    // Uptime
+    if (data.uptime_seconds !== undefined) {
+      const s = data.uptime_seconds;
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      document.getElementById('serverUptime').textContent = `${h}h ${m}m ${sec}s`;
+    }
+
+    // Meters: CPU
+    if (data.cpu !== null && data.cpu !== undefined) {
+      document.getElementById('cpuValue').textContent = `${data.cpu}%`;
+      const fill = document.getElementById('cpuFill');
+      fill.style.width = `${data.cpu}%`;
+      fill.className = data.cpu > 85 ? 'meter-fill danger' : (data.cpu > 65 ? 'meter-fill warn' : 'meter-fill');
+      document.getElementById('cpuSub').textContent = `Real-time processor load`;
+    }
+
+    // Meters: RAM
+    if (data.ram !== null && data.ram !== undefined) {
+      document.getElementById('ramValue').textContent = `${data.ram}%`;
+      const fill = document.getElementById('ramFill');
+      fill.style.width = `${data.ram}%`;
+      fill.className = data.ram > 85 ? 'meter-fill danger' : (data.ram > 70 ? 'meter-fill warn' : 'meter-fill');
+      document.getElementById('ramSub').textContent = `System memory consumption`;
+    }
+
+    // Meters: Storage
+    if (data.storage && data.storage.total_gb) {
+      const usedPct = Math.round((data.storage.used_gb / data.storage.total_gb) * 100);
+      document.getElementById('storageValue').textContent = `${usedPct}%`;
+      document.getElementById('storageFill').style.width = `${usedPct}%`;
+      document.getElementById('storageSub').textContent = `${data.storage.free_gb} GB free of ${data.storage.total_gb} GB`;
+    }
+
+    // Meters: Battery
+    if (data.battery && data.battery.percentage !== null) {
+      const pct = data.battery.percentage;
+      document.getElementById('batteryValue').textContent = `${pct}%`;
+      document.getElementById('batteryFill').style.width = `${pct}%`;
+      const statusStr = data.battery.plugged ? `Charging (${data.battery.plugged})` : `Discharging`;
+      document.getElementById('batterySub').textContent = statusStr;
+    }
+
+    // Battery Health Guard Alert Banner
+    const guardBanner = document.getElementById('batteryGuardBanner');
+    if (data.battery_guard && data.battery_guard.swelling_risk) {
+      guardBanner.style.display = 'flex';
+      document.getElementById('batteryGuardMsg').textContent = data.battery_guard.message;
+    } else {
+      guardBanner.style.display = 'none';
+    }
+
+    // Torch State
+    if (data.torch !== undefined) {
+      const dot = document.getElementById('torchStatusDot');
+      const text = document.getElementById('torchStatusText');
+      if (data.torch) {
+        dot.className = 'dot dot-online';
+        text.textContent = 'Flashlight: ON';
+      } else {
+        dot.className = 'dot dot-offline';
+        text.textContent = 'Flashlight: OFF';
+      }
+    }
+
+    // Cloudflare Tunnel State
+    if (data.tunnel) {
+      const tBadge = document.getElementById('tunnelBadge');
+      const tBox = document.getElementById('tunnelUrlBox');
+      const tLink = document.getElementById('tunnelLink');
+      const btnStart = document.getElementById('btnStartTunnel');
+      const btnStop = document.getElementById('btnStopTunnel');
+
+      if (data.tunnel.running && data.tunnel.url) {
+        tBadge.className = 'badge badge-online';
+        tBadge.textContent = 'Online';
+        tBox.style.display = 'block';
+        tLink.href = data.tunnel.url;
+        tLink.textContent = data.tunnel.url;
+        btnStart.style.display = 'none';
+        btnStop.style.display = 'inline-flex';
+      } else {
+        tBadge.className = 'badge badge-offline';
+        tBadge.textContent = 'Offline';
+        tBox.style.display = 'none';
+        btnStart.style.display = 'inline-flex';
+        btnStop.style.display = 'none';
+      }
+    }
+
+    // Update Telemetry Chart History
+    chartHistory.cpu.push(data.cpu || 0);
+    chartHistory.ram.push(data.ram || 0);
+    chartHistory.traffic.push(Math.random() * 80 + 20); // sample KB/s
+    if (chartHistory.cpu.length > 13) {
+      chartHistory.cpu.shift();
+      chartHistory.ram.shift();
+      chartHistory.traffic.shift();
+    }
+    drawTelemetryChart();
+
+  } catch (err) {
+    console.warn('Telemetry poll error:', err);
+  }
+}
+
+/* ------------------------------------------------------------
+   Services & Controls
+------------------------------------------------------------ */
+async function fetchServices() {
+  try {
+    const list = await fetchJson(`${API_BASE_URL}/api/services`);
+    const container = document.getElementById('serviceGrid');
+    container.innerHTML = '';
+    list.forEach(svc => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.padding = '14px';
+      const isOnline = svc.status === 'online';
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <strong style="font-size:13.5px;">${svc.name}</strong>
+          <span class="badge ${isOnline ? 'badge-online' : 'badge-offline'}">
+            <span class="dot ${isOnline ? 'dot-online' : 'dot-offline'}"></span> ${svc.status}
+          </span>
+        </div>
+        <div style="font-family:var(--mono); font-size:11.5px; color:var(--text-muted);">Process: ${svc.process}</div>
+        <div style="font-family:var(--mono); font-size:11.5px; color:var(--text-muted);">Port: ${svc.port || 'n/a'} | PID: ${svc.pid || 'n/a'}</div>
+      `;
+      container.appendChild(card);
+    });
+  } catch (e) {
+    console.warn('Could not fetch services:', e);
+  }
+}
+
+/* ------------------------------------------------------------
+   Camera Snapshot & CCTV Auto-Refresh
+------------------------------------------------------------ */
+function snapCamera() {
+  const camId = document.getElementById('cameraSelect').value;
+  const img = document.getElementById('cameraImg');
+  const timestamp = document.getElementById('camTimestamp');
+  img.src = `${API_BASE_URL}/api/phone/camera/snap?camera=${camId}&t=${Date.now()}`;
+  timestamp.textContent = new Date().toLocaleTimeString();
+  document.getElementById('camLabel').textContent = camId === '0' ? 'CAMERA 0 [BACK]' : 'CAMERA 1 [FRONT]';
+}
+document.getElementById('btnSnapPhoto').addEventListener('click', snapCamera);
+document.getElementById('cameraSelect').addEventListener('change', snapCamera);
+
+document.getElementById('cctvToggle').addEventListener('change', (e) => {
+  if (e.target.checked) {
+    snapCamera();
+    cctvInterval = setInterval(snapCamera, 5000);
+  } else {
+    clearInterval(cctvInterval);
+  }
+});
+
+/* ------------------------------------------------------------
+   Torch / Flashlight
+------------------------------------------------------------ */
+document.getElementById('btnToggleTorch').addEventListener('click', async () => {
+  if (!ensureToken() && !promptForToken()) return;
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/phone/torch`, {
+      method: 'POST',
+      headers: { ...authHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    });
+    const data = await res.json();
+    fetchTelemetry();
+  } catch (err) {
+    alert('Failed to toggle torch: ' + err.message);
+  }
+});
+
+/* ------------------------------------------------------------
+   Text-to-Speech & Vibrate
+------------------------------------------------------------ */
+document.getElementById('btnSpeak').addEventListener('click', async () => {
+  if (!ensureToken() && !promptForToken()) return;
+  const text = document.getElementById('ttsInput').value.trim();
+  if (!text) return;
+  try {
+    await fetch(`${API_BASE_URL}/api/phone/tts`, {
+      method: 'POST',
+      headers: { ...authHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    document.getElementById('ttsInput').value = '';
+  } catch (err) {
+    alert('TTS error: ' + err.message);
+  }
+});
+
+document.getElementById('btnVibrate').addEventListener('click', async () => {
+  if (!ensureToken() && !promptForToken()) return;
+  try {
+    await fetch(`${API_BASE_URL}/api/phone/vibrate`, {
+      method: 'POST',
+      headers: { ...authHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ duration_ms: 1000 })
+    });
+  } catch (err) {
+    alert('Vibrate error: ' + err.message);
+  }
+});
+
+/* ------------------------------------------------------------
+   Cloudflare Tunnel Controls
+------------------------------------------------------------ */
+document.getElementById('btnStartTunnel').addEventListener('click', async () => {
+  if (!ensureToken() && !promptForToken()) return;
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/tunnel/start`, {
+      method: 'POST',
+      headers: authHeader()
+    });
+    const data = await res.json();
+    if (!res.ok) alert(data.error || 'Failed to start tunnel');
+    setTimeout(fetchTelemetry, 2000);
+  } catch (err) {
+    alert('Tunnel start error: ' + err.message);
+  }
+});
+
+document.getElementById('btnStopTunnel').addEventListener('click', async () => {
+  if (!ensureToken() && !promptForToken()) return;
+  try {
+    await fetch(`${API_BASE_URL}/api/tunnel/stop`, {
+      method: 'POST',
+      headers: authHeader()
+    });
+    fetchTelemetry();
+  } catch (err) {
+    alert('Tunnel stop error: ' + err.message);
+  }
+});
+
+/* ------------------------------------------------------------
+   File Manager
+------------------------------------------------------------ */
+async function loadFiles(path = '') {
+  const container = document.getElementById('fileTable');
+  if (!ensureToken()) {
+    container.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-muted);">Enter API Security Token in Settings to view and manage files.</div>';
+    return;
+  }
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/files?path=${encodeURIComponent(path)}`, {
+      headers: authHeader()
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    currentPath = data.path;
+    document.getElementById('fileBreadcrumbs').textContent = currentPath ? `Root / ${currentPath}` : 'Root';
+
+    if (!data.entries || data.entries.length === 0) {
+      container.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-muted);">Directory is empty.</div>';
+      return;
+    }
+
+    container.innerHTML = '';
+    data.entries.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'file-row';
+      const icon = item.is_dir ? '📁' : '📄';
+      const sizeStr = item.size_bytes !== null ? `${Math.round(item.size_bytes / 1024)} KB` : '';
+
+      row.innerHTML = `
+        <div class="file-info">
+          <span>${icon}</span>
+          <span class="file-name ${item.is_dir ? 'is-dir' : ''}">${item.name}</span>
+          <span class="file-meta">${sizeStr}</span>
+        </div>
+        <div class="file-actions">
+          ${item.previewable ? `<button class="btn-sm" data-action="preview">Preview</button>` : ''}
+          ${!item.is_dir ? `<button class="btn-sm" data-action="download">Download</button>` : ''}
+          <button class="btn-sm danger" data-action="delete">Delete</button>
+        </div>
+      `;
+
+      // Directory navigation
+      if (item.is_dir) {
+        row.querySelector('.file-name').addEventListener('click', () => {
+          loadFiles(currentPath ? `${currentPath}/${item.name}` : item.name);
+        });
+      }
+
+      // Actions
+      const itemRelPath = currentPath ? `${currentPath}/${item.name}` : item.name;
+      const prevBtn = row.querySelector('[data-action="preview"]');
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+          window.open(`${API_BASE_URL}/api/files/stream?path=${encodeURIComponent(itemRelPath)}&token=${encodeURIComponent(apiToken)}`, '_blank');
+        });
+      }
+      const dlBtn = row.querySelector('[data-action="download"]');
+      if (dlBtn) {
+        dlBtn.addEventListener('click', () => {
+          window.open(`${API_BASE_URL}/api/files/download?path=${encodeURIComponent(itemRelPath)}&token=${encodeURIComponent(apiToken)}`, '_blank');
+        });
+      }
+      const delBtn = row.querySelector('[data-action="delete"]');
+      if (delBtn) {
+        delBtn.addEventListener('click', async () => {
+          if (!confirm(`Delete "${item.name}"?`)) return;
+          await fetch(`${API_BASE_URL}/api/files`, {
+            method: 'DELETE',
+            headers: { ...authHeader(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: itemRelPath })
+          });
+          loadFiles(currentPath);
+        });
+      }
+
+      container.appendChild(row);
+    });
+
+  } catch (err) {
+    container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--red);">Error loading files: ${err.message}</div>`;
+  }
+}
+
+document.getElementById('btnRefreshFiles').addEventListener('click', () => loadFiles(currentPath));
+
+document.getElementById('btnUploadFile').addEventListener('click', () => {
+  if (!ensureToken() && !promptForToken()) return;
+  document.getElementById('fileUploadInput').click();
+});
+document.getElementById('fileUploadInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('path', currentPath);
+  document.getElementById('uploadProgress').textContent = `Uploading ${file.name}...`;
+  try {
+    await fetch(`${API_BASE_URL}/api/files/upload`, {
+      method: 'POST',
+      headers: authHeader(),
+      body: formData
+    });
+    document.getElementById('uploadProgress').textContent = `Uploaded ${file.name}!`;
+    setTimeout(() => { document.getElementById('uploadProgress').textContent = ''; }, 3000);
+    loadFiles(currentPath);
+  } catch (err) {
+    alert('Upload failed: ' + err.message);
+  }
+});
+
+document.getElementById('btnUploadFolder').addEventListener('click', () => {
+  if (!ensureToken() && !promptForToken()) return;
+  document.getElementById('folderUploadInput').click();
+});
+document.getElementById('folderUploadInput').addEventListener('change', async (e) => {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
+  const progress = document.getElementById('uploadProgress');
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i];
+    progress.textContent = `Uploading folder file ${i + 1}/${files.length} (${f.name})...`;
+    const formData = new FormData();
+    formData.append('file', f);
+    formData.append('path', currentPath);
+    formData.append('relative_path', f.webkitRelativePath || f.name);
+    try {
+      await fetch(`${API_BASE_URL}/api/files/upload`, {
+        method: 'POST',
+        headers: authHeader(),
+        body: formData
+      });
+    } catch (err) {
+      console.warn('Folder file upload error:', err);
+    }
+  }
+  progress.textContent = `Folder upload complete!`;
+  setTimeout(() => { progress.textContent = ''; }, 3000);
+  loadFiles(currentPath);
+});
+
+document.getElementById('btnNewFolder').addEventListener('click', async () => {
+  if (!ensureToken() && !promptForToken()) return;
+  const name = prompt('New folder name:');
+  if (!name || !name.trim()) return;
+  try {
+    await fetch(`${API_BASE_URL}/api/files/create-folder`, {
+      method: 'POST',
+      headers: { ...authHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: currentPath, name: name.trim() })
+    });
+    loadFiles(currentPath);
+  } catch (err) {
+    alert('Failed to create folder: ' + err.message);
+  }
+});
+
+/* ------------------------------------------------------------
+   Server Controls
+------------------------------------------------------------ */
+async function triggerControl(action) {
+  if (!ensureToken() && !promptForToken()) return;
+  const service = document.getElementById('controlServiceSelect').value;
+  const statusEl = document.getElementById('controlStatus');
+  statusEl.textContent = `Triggering ${action}...`;
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/control/${action}`, {
+      method: 'POST',
+      headers: { ...authHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ service })
+    });
+    const data = await res.json();
+    statusEl.textContent = `Success: ${action}`;
+    setTimeout(() => { statusEl.textContent = ''; }, 3000);
+    setTimeout(fetchServices, 1500);
+  } catch (err) {
+    statusEl.textContent = `Error: ${err.message}`;
+  }
+}
+document.getElementById('btnControlStart').addEventListener('click', () => triggerControl('start'));
+document.getElementById('btnControlStop').addEventListener('click', () => triggerControl('stop'));
+document.getElementById('btnControlRestart').addEventListener('click', () => triggerControl('restart'));
+
+/* ------------------------------------------------------------
+   Real-Time Log Viewer
+------------------------------------------------------------ */
+async function fetchLogs() {
+  const file = document.getElementById('logFileSelect').value;
+  const view = document.getElementById('logView');
+  try {
+    const data = await fetchJson(`${API_BASE_URL}/api/logs?file=${encodeURIComponent(file)}&lines=120`);
+    const lines = data.lines || [];
+    view.textContent = lines.length ? lines.join('\n') : 'No log entries yet.';
+    view.scrollTop = view.scrollHeight;
+  } catch (err) {
+    view.textContent = `Failed to read log: ${err.message}`;
+  }
+}
+document.getElementById('btnRefreshLogs').addEventListener('click', fetchLogs);
+document.getElementById('logFileSelect').addEventListener('change', fetchLogs);
+document.getElementById('btnClearLogs').addEventListener('click', async () => {
+  if (!ensureToken() && !promptForToken()) return;
+  const file = document.getElementById('logFileSelect').value;
+  if (!confirm(`Clear log file "${file}"?`)) return;
+  await fetch(`${API_BASE_URL}/api/logs/clear`, {
+    method: 'POST',
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ file })
+  });
+  fetchLogs();
+});
+
+setInterval(() => {
+  if (document.getElementById('autoRefreshLogs').checked) {
+    fetchLogs();
+  }
+}, 3000);
+
+/* ------------------------------------------------------------
+   QR Connect Modal
+------------------------------------------------------------ */
+const qrModal = document.getElementById('qrModal');
+document.getElementById('btnQR').addEventListener('click', () => {
+  const currentUrl = window.location.href;
+  document.getElementById('qrModalImg').src = `${API_BASE_URL}/api/qrcode?data=${encodeURIComponent(currentUrl)}`;
+  document.getElementById('qrUrlText').textContent = currentUrl;
+  qrModal.classList.add('open');
+});
+document.getElementById('btnCloseQR').addEventListener('click', () => qrModal.classList.remove('open'));
+document.getElementById('btnCopyQRUrl').addEventListener('click', () => {
+  navigator.clipboard.writeText(window.location.href);
+  alert('Copied URL to clipboard!');
+});
+
+/* ------------------------------------------------------------
+   Master Refresh
+------------------------------------------------------------ */
+async function refreshAll() {
+  await fetchTelemetry();
+  await fetchServices();
+  loadFiles(currentPath);
+  fetchLogs();
+  snapCamera();
+}
+document.getElementById('btnRefresh').addEventListener('click', refreshAll);
+
+// Polling Loop
+setInterval(fetchTelemetry, REFRESH_INTERVAL_MS);
+refreshAll();
+</script>
+</body>
+</html>

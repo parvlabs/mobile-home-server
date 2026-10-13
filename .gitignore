@@ -1,0 +1,29 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Security & Credentials (never commit secrets)
+.token
+.env
+*.env.local
+
+# Server logs & user shared uploads
+logs/*
+!logs/.gitkeep
+shared/*
+!shared/.gitkeep
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE configurations
+.vscode/
+.idea/
