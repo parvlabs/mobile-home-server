@@ -28,6 +28,11 @@ An ultra-lightweight, self-hosted server and dashboard designed to run seamlessl
 * 🗣️ **Text-to-Speech (TTS)**: Broadcast voice announcements through the phone's speaker directly from your browser.
 * 📳 **Haptic / Alarm Alert**: Remotely vibrate the phone for alerts.
 * 🔋 **Battery Health Guard**: Continuous monitoring of battery level and temperature with smart advisory alerts to prevent battery swelling when plugged in 24/7.
+* 📋 **Universal Clipboard Sync**: Seamlessly read or push text between your computer and the phone's system clipboard with one click.
+
+### 📡 Network Radar & Utilities
+* 📡 **Network Device Radar (Wi-Fi Scanner)**: Discover active client devices, routers, and IoT hardware connected to your local Wi-Fi subnet with IP and MAC resolution.
+* 📝 **Persistent Scratchpad**: Shared sticky notes for code snippets, to-dos, and quick notes auto-saved directly to your server.
 
 ### 📊 Real-Time Telemetry & Visuals
 * 📈 **60-Second Real-Time Telemetry Graph**: Smooth canvas chart displaying real-time CPU %, RAM %, and network traffic over the last minute.
@@ -39,7 +44,7 @@ An ultra-lightweight, self-hosted server and dashboard designed to run seamlessl
 * 📁 **Web File Manager**: Browse, create folders, download, rename, and delete files.
 * 📂 **Folder Upload**: Upload entire directories with nested hierarchies preserved.
 * 🎬 **In-line Media Preview**: Stream videos, music, and images directly in the browser.
-* 🔒 **Token-Protected Security**: File modifications and server controls are secured by a 16-byte hex Bearer token.
+* 🔒 **Hardened Security**: Timing-safe token authentication (`secrets.compare_digest`), automated brute-force IP rate-limiting, and blocked executable uploads.
 
 ---
 

@@ -972,6 +972,173 @@ def qr_code_endpoint():
 
 
 # ================================================================
+# ROUTES: UNIVERSAL CLIPBOARD & SCRATCHPAD
+# ================================================================
+SCRATCHPAD_FILE = os.path.join(FILE_ROOT, ".scratchpad.txt")
+
+@app.route("/api/phone/clipboard", methods=["GET", "POST"])
+def phone_clipboard():
+    """Syncs clipboard between phone and connected clients."""
+    if request.method == "POST":
+        auth_check = require_token(lambda: None)()
+        if auth_check is not None:
+            return auth_check
+
+        data = request.get_json(silent=True) or {}
+        text = str(data.get("text", ""))[:20000]
+
+        # 1. Android Termux clipboard
+        set_success = False
+        try:
+            p = subprocess.run(["termux-clipboard-set"], input=text, text=True, timeout=3)
+            if p.returncode == 0:
+                set_success = True
+        except Exception:
+            pass
+
+        # 2. Desktop fallback
+        if not set_success:
+            try:
+                import pyperclip
+                pyperclip.copy(text)
+                set_success = True
+            except Exception:
+                pass
+
+        log_event(f"Clipboard updated ({len(text)} chars)")
+        return jsonify({"status": "copied", "length": len(text)})
+
+    # GET clipboard
+    clip_text = ""
+    try:
+        p = subprocess.run(["termux-clipboard-get"], capture_output=True, text=True, timeout=2)
+        if p.returncode == 0:
+            clip_text = p.stdout
+    except Exception:
+        pass
+
+    if not clip_text:
+        try:
+            import pyperclip
+            clip_text = pyperclip.paste()
+        except Exception:
+            pass
+
+    return jsonify({"content": clip_text, "length": len(clip_text)})
+
+
+@app.route("/api/scratchpad", methods=["GET", "POST"])
+def scratchpad_endpoint():
+    """Auto-saved quick scratchpad / notes."""
+    if request.method == "POST":
+        auth_check = require_token(lambda: None)()
+        if auth_check is not None:
+            return auth_check
+
+        data = request.get_json(silent=True) or {}
+        content = str(data.get("content", ""))[:50000]
+        try:
+            with open(SCRATCHPAD_FILE, "w", encoding="utf-8") as f:
+                f.write(content)
+        except Exception as err:
+            return jsonify({"error": f"Failed to save scratchpad: {err}"}), 500
+        return jsonify({"status": "saved", "updated_at": int(time.time()), "length": len(content)})
+
+    # GET
+    content = ""
+    mtime = 0
+    if os.path.exists(SCRATCHPAD_FILE):
+        try:
+            mtime = int(os.path.getmtime(SCRATCHPAD_FILE))
+            with open(SCRATCHPAD_FILE, "r", encoding="utf-8") as f:
+                content = f.read()
+        except Exception:
+            pass
+    return jsonify({"content": content, "updated_at": mtime, "length": len(content)})
+
+
+# ================================================================
+# ROUTES: NETWORK DEVICE RADAR (WI-FI SCANNER)
+# ================================================================
+@app.route("/api/network/radar", methods=["GET"])
+def network_radar():
+    """Scans and lists active connected devices on the local Wi-Fi subnet."""
+    my_ip = get_local_ip() or "127.0.0.1"
+    devices = []
+    seen_ips = set()
+
+    # 1. Linux / Android ARP table
+    try:
+        with open("/proc/net/arp", "r") as f:
+            for line in f.readlines()[1:]:
+                parts = line.split()
+                if len(parts) >= 4 and parts[3] != "00:00:00:00:00:00":
+                    ip = parts[0]
+                    mac = parts[3].upper()
+                    if ip not in seen_ips and not ip.startswith("224.") and not ip.startswith("239."):
+                        seen_ips.add(ip)
+                        devices.append({"ip": ip, "mac": mac})
+    except Exception:
+        pass
+
+    # 2. Windows & fallback ARP table
+    if not devices:
+        try:
+            p = subprocess.run(["arp", "-a"], capture_output=True, text=True, timeout=4)
+            for line in p.stdout.splitlines():
+                m = re.search(r"([0-9]{1,3}(?:\.[0-9]{1,3}){3})\s+([0-9a-fA-F[:-]{11,17})", line)
+                if m:
+                    ip = m.group(1)
+                    mac = m.group(2).replace("-", ":").upper()
+                    if mac not in ("FF:FF:FF:FF:FF:FF", "01:00:5E") and not ip.startswith("224.") and not ip.startswith("239.") and not ip.endswith(".255"):
+                        if ip not in seen_ips:
+                            seen_ips.add(ip)
+                            devices.append({"ip": ip, "mac": mac})
+        except Exception:
+            pass
+
+    # Ensure this server is included in the radar
+    if my_ip not in seen_ips and my_ip != "127.0.0.1":
+        devices.insert(0, {"ip": my_ip, "mac": "SELF", "is_self": True})
+
+    # Device categorization
+    enriched = []
+    for d in devices:
+        ip = d["ip"]
+        is_self = d.get("is_self", ip == my_ip)
+        is_gateway = ip.endswith(".1") or ip.endswith(".254")
+
+        if is_self:
+            device_type = "Server (This Device)"
+            icon = "⚡"
+        elif is_gateway:
+            device_type = "Wi-Fi Router / Gateway"
+            icon = "🌐"
+        else:
+            device_type = "Connected Client"
+            icon = "📱"
+
+        enriched.append({
+            "ip": ip,
+            "mac": d.get("mac", "--"),
+            "type": device_type,
+            "icon": icon,
+            "is_self": is_self,
+            "is_gateway": is_gateway,
+            "status": "online"
+        })
+
+    enriched.sort(key=lambda x: (not x["is_self"], not x["is_gateway"], [int(p) for p in x["ip"].split(".") if p.isdigit()]))
+
+    return jsonify({
+        "my_ip": my_ip,
+        "total": len(enriched),
+        "devices": enriched,
+        "timestamp": int(time.time())
+    })
+
+
+# ================================================================
 # ROUTES: file manager (confined to FILE_ROOT = ~/server/shared)
 # ================================================================
 @app.route("/api/files", methods=["GET"])
