@@ -1,6 +1,6 @@
 # ⚡ Mobile Home Server
 
-> **Turn any spare Android phone or computer into a 24/7 personal home server, security webcam, and private cloud.**
+> **Ultra low-power personal home server & IoT hub for Android (Termux) and PC. Features built-in battery UPS guard, real-time hardware telemetry, CCTV security cam, local Wi-Fi radar, shared clipboard sync, and zero-config Cloudflare tunnels.**
 
 [![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-3.x-000000?style=flat&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
