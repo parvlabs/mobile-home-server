@@ -374,46 +374,6 @@
     display: block;
   }
 
-  /* Phone Superpowers */
-  .superpower-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: var(--gap);
-  }
-
-  .camera-viewfinder {
-    position: relative;
-    width: 100%;
-    height: 240px;
-    background: #000;
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--border);
-  }
-
-  .camera-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .camera-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: rgba(0, 0, 0, 0.7);
-    color: #fff;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-family: var(--mono);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
 
   .toolbar {
     display: flex;
@@ -679,153 +639,7 @@
     </div>
   </section>
 
-  <!-- 2. Phone Superpowers (Hardware Controls via Termux:API) -->
-  <section class="section">
-    <div class="section-header">
-      <div class="section-title">🚀 Phone Superpowers (Hardware Controls)</div>
-    </div>
-    <div class="superpower-grid">
-
-      <!-- Camera Security Monitor -->
-      <div class="card" style="padding:16px;">
-        <div style="font-weight:600; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-          <span>📸 Camera Security Viewfinder</span>
-          <label style="font-size:12px; font-weight:normal; display:flex; align-items:center; gap:6px; cursor:pointer;">
-            <input type="checkbox" id="cctvToggle"> CCTV Auto-Refresh (5s)
-          </label>
-        </div>
-        <div class="camera-viewfinder">
-          <img id="cameraImg" class="camera-img" src="" alt="Camera Preview Frame" />
-          <div class="camera-badge">
-            <span class="dot dot-online"></span>
-            <span id="camLabel">CAMERA 0 [BACK]</span>
-          </div>
-        </div>
-        <div class="toolbar">
-          <select id="cameraSelect" class="btn-sm" style="height:32px;">
-            <option value="0">Back Camera (0)</option>
-            <option value="1">Front Camera (1)</option>
-          </select>
-          <button class="btn-sm btn-accent" id="btnSnapPhoto">📸 Capture Frame</button>
-          <span class="file-meta" id="camTimestamp">--</span>
-        </div>
-      </div>
-
-      <!-- Remote Torch, TTS & Sound Alerts -->
-      <div class="card" style="padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
-        <div>
-          <div style="font-weight:600; margin-bottom:12px;">🔦 Remote Flashlight / Torch</div>
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; padding:10px 14px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm);">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <span id="torchStatusDot" class="dot dot-offline"></span>
-              <span id="torchStatusText" style="font-weight:500;">Flashlight: OFF</span>
-            </div>
-            <button class="btn-sm" id="btnToggleTorch">Toggle Torch</button>
-          </div>
-
-          <div style="font-weight:600; margin-bottom:10px;">🗣️ Remote Voice Alert (Text-to-Speech)</div>
-          <div style="display:flex; gap:8px; margin-bottom:16px;">
-            <input type="text" id="ttsInput" class="input-text" placeholder="Message to speak through phone speaker..." />
-            <button class="btn-sm btn-accent" id="btnSpeak">🔊 Speak</button>
-          </div>
-
-          <div style="font-weight:600; margin-bottom:10px;">📳 Haptic Vibrate Alert</div>
-          <div style="display:flex; gap:8px;">
-            <button class="btn-sm" id="btnVibrate">Vibrate Phone (1s)</button>
-          </div>
-        </div>
-
-        <!-- Cloudflare Zero-Config Remote Tunnel -->
-        <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
-          <div style="font-weight:600; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-            <span>🌐 Cloudflare Remote Tunnel</span>
-            <span class="badge badge-offline" id="tunnelBadge">Offline</span>
-          </div>
-          <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">
-            Secure global HTTPS access without port forwarding or exposing your home IP.
-          </div>
-          <div id="tunnelUrlBox" style="display:none; margin-bottom:10px; padding:8px 12px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); font-family:var(--mono); font-size:12px; word-break:break-all;">
-            <a id="tunnelLink" href="#" target="_blank" style="color:var(--accent); text-decoration:none;"></a>
-          </div>
-          <div style="display:flex; gap:8px;">
-            <button class="btn-sm btn-accent" id="btnStartTunnel">🚀 Start Tunnel</button>
-            <button class="btn-sm danger" id="btnStopTunnel" style="display:none;">Stop Tunnel</button>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-  <!-- 3. Universal Clipboard & Scratchpad -->
-  <section class="section">
-    <div class="section-header">
-      <div class="section-title">📋 Universal Clipboard &amp; Scratchpad</div>
-    </div>
-    <div class="grid-2">
-      <!-- Universal Clipboard Card -->
-      <div class="card" style="padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
-        <div>
-          <div style="font-weight:600; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-            <span>📱 Phone ⇄ PC Clipboard</span>
-            <span class="file-meta" id="clipLength">0 chars</span>
-          </div>
-          <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">
-            Read or push text directly to the phone's system clipboard.
-          </div>
-          <textarea id="clipTextarea" class="input-text" style="width:100%; height:110px; resize:vertical; font-family:var(--mono); font-size:12.5px; margin-bottom:10px;" placeholder="Clipboard text will appear here, or type text to send to phone..."></textarea>
-        </div>
-        <div class="toolbar" style="margin-top:0;">
-          <button class="btn-sm btn-accent" id="btnGetClip">📥 Read Phone</button>
-          <button class="btn-sm" id="btnSetClip">📤 Push to Phone</button>
-          <button class="btn-sm" id="btnCopyBrowserClip">📋 Copy to Local</button>
-          <span class="file-meta" id="clipStatus"></span>
-        </div>
-      </div>
-
-      <!-- Persistent Scratchpad Card -->
-      <div class="card" style="padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
-        <div>
-          <div style="font-weight:600; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-            <span>📝 Persistent Scratchpad / Notes</span>
-            <span class="file-meta" id="scratchpadStatus">Auto-saved</span>
-          </div>
-          <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">
-            Shared scratchpad for to-dos, code snippets, or notes auto-saved to your server.
-          </div>
-          <textarea id="scratchpadTextarea" class="input-text" style="width:100%; height:110px; resize:vertical; font-family:var(--mono); font-size:12.5px; margin-bottom:10px;" placeholder="Quick notes, commands, or scratchpad text..."></textarea>
-        </div>
-        <div class="toolbar" style="margin-top:0;">
-          <button class="btn-sm btn-accent" id="btnSaveScratchpad">💾 Save Notes</button>
-          <button class="btn-sm" id="btnClearScratchpad">Clear</button>
-          <button class="btn-sm" id="btnCopyScratchpad">Copy All</button>
-          <span class="file-meta" id="notesMtime"></span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 4. Network Device Radar -->
-  <section class="section">
-    <div class="section-header">
-      <div class="section-title">📡 Network Device Radar (Wi-Fi Scanner)</div>
-      <div style="display:flex; align-items:center; gap:10px;">
-        <span class="file-meta" id="radarDeviceCount">0 devices found</span>
-        <button class="btn-sm btn-accent" id="btnScanRadar">📡 Scan Wi-Fi Subnet</button>
-      </div>
-    </div>
-    <div class="card" style="padding:16px;">
-      <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">
-        Discovered live network clients, routers, and IoT hardware connected to your local Wi-Fi.
-      </div>
-      <div class="grid-4" id="radarGrid">
-        <div style="padding:20px; text-align:center; color:var(--text-muted); grid-column:1/-1;">Click "Scan Wi-Fi Subnet" to discover local devices.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 5. Server Overview & Device Telemetry -->
+  <!-- 2. Server Overview & Device Telemetry -->
   <section class="section">
     <div class="grid-2">
       <!-- Server Overview -->
@@ -874,6 +688,24 @@
           <span class="row-label">Network Interface</span>
           <span class="row-value" id="netInterface">--</span>
         </div>
+      </div>
+    </div>
+
+    <!-- Cloudflare Zero-Config Remote Tunnel -->
+    <div class="card" style="margin-top:var(--gap); padding:16px;">
+      <div style="font-weight:600; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+        <span style="display:flex; align-items:center; gap:8px;">🌐 Cloudflare Zero-Config Remote Tunnel</span>
+        <span class="badge badge-offline" id="tunnelBadge">Offline</span>
+      </div>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">
+        Secure global HTTPS access without port forwarding or exposing your home IP.
+      </div>
+      <div id="tunnelUrlBox" style="display:none; margin-bottom:12px; padding:8px 12px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); font-family:var(--mono); font-size:12px; word-break:break-all;">
+        <a id="tunnelLink" href="#" target="_blank" style="color:var(--accent); text-decoration:none;"></a>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-sm btn-accent" id="btnStartTunnel">🚀 Start Tunnel</button>
+        <button class="btn-sm danger" id="btnStopTunnel" style="display:none;">Stop Tunnel</button>
       </div>
     </div>
   </section>
@@ -986,7 +818,6 @@ const FETCH_TIMEOUT_MS = 4000;
 
 let apiToken = localStorage.getItem('a23_api_token') || '';
 let currentPath = '';
-let cctvInterval = null;
 let logInterval = null;
 let chartHistory = { cpu: [], ram: [], traffic: [], timestamps: [] };
 
@@ -1174,19 +1005,6 @@ async function fetchTelemetry() {
       guardBanner.style.display = 'none';
     }
 
-    // Torch State
-    if (data.torch !== undefined) {
-      const dot = document.getElementById('torchStatusDot');
-      const text = document.getElementById('torchStatusText');
-      if (data.torch) {
-        dot.className = 'dot dot-online';
-        text.textContent = 'Flashlight: ON';
-      } else {
-        dot.className = 'dot dot-offline';
-        text.textContent = 'Flashlight: OFF';
-      }
-    }
-
     // Cloudflare Tunnel State
     if (data.tunnel) {
       const tBadge = document.getElementById('tunnelBadge');
@@ -1259,79 +1077,6 @@ async function fetchServices() {
 }
 
 /* ------------------------------------------------------------
-   Camera Snapshot & CCTV Auto-Refresh
------------------------------------------------------------- */
-function snapCamera() {
-  const camId = document.getElementById('cameraSelect').value;
-  const img = document.getElementById('cameraImg');
-  const timestamp = document.getElementById('camTimestamp');
-  img.src = `${API_BASE_URL}/api/phone/camera/snap?camera=${camId}&t=${Date.now()}`;
-  timestamp.textContent = new Date().toLocaleTimeString();
-  document.getElementById('camLabel').textContent = camId === '0' ? 'CAMERA 0 [BACK]' : 'CAMERA 1 [FRONT]';
-}
-document.getElementById('btnSnapPhoto').addEventListener('click', snapCamera);
-document.getElementById('cameraSelect').addEventListener('change', snapCamera);
-
-document.getElementById('cctvToggle').addEventListener('change', (e) => {
-  if (e.target.checked) {
-    snapCamera();
-    cctvInterval = setInterval(snapCamera, 5000);
-  } else {
-    clearInterval(cctvInterval);
-  }
-});
-
-/* ------------------------------------------------------------
-   Torch / Flashlight
------------------------------------------------------------- */
-document.getElementById('btnToggleTorch').addEventListener('click', async () => {
-  if (!ensureToken() && !promptForToken()) return;
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/phone/torch`, {
-      method: 'POST',
-      headers: { ...authHeader(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({})
-    });
-    const data = await res.json();
-    fetchTelemetry();
-  } catch (err) {
-    alert('Failed to toggle torch: ' + err.message);
-  }
-});
-
-/* ------------------------------------------------------------
-   Text-to-Speech & Vibrate
------------------------------------------------------------- */
-document.getElementById('btnSpeak').addEventListener('click', async () => {
-  if (!ensureToken() && !promptForToken()) return;
-  const text = document.getElementById('ttsInput').value.trim();
-  if (!text) return;
-  try {
-    await fetch(`${API_BASE_URL}/api/phone/tts`, {
-      method: 'POST',
-      headers: { ...authHeader(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
-    });
-    document.getElementById('ttsInput').value = '';
-  } catch (err) {
-    alert('TTS error: ' + err.message);
-  }
-});
-
-document.getElementById('btnVibrate').addEventListener('click', async () => {
-  if (!ensureToken() && !promptForToken()) return;
-  try {
-    await fetch(`${API_BASE_URL}/api/phone/vibrate`, {
-      method: 'POST',
-      headers: { ...authHeader(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ duration_ms: 1000 })
-    });
-  } catch (err) {
-    alert('Vibrate error: ' + err.message);
-  }
-});
-
-/* ------------------------------------------------------------
    Cloudflare Tunnel Controls
 ------------------------------------------------------------ */
 document.getElementById('btnStartTunnel').addEventListener('click', async () => {
@@ -1361,146 +1106,6 @@ document.getElementById('btnStopTunnel').addEventListener('click', async () => {
     alert('Tunnel stop error: ' + err.message);
   }
 });
-
-/* ------------------------------------------------------------
-   Universal Clipboard & Scratchpad
------------------------------------------------------------- */
-async function fetchClipboard() {
-  try {
-    const data = await fetchJson(`${API_BASE_URL}/api/phone/clipboard`);
-    const area = document.getElementById('clipTextarea');
-    area.value = data.content || '';
-    document.getElementById('clipLength').textContent = `${data.length || 0} chars`;
-  } catch (err) {
-    console.warn('Clipboard fetch error:', err);
-  }
-}
-
-document.getElementById('btnGetClip').addEventListener('click', fetchClipboard);
-
-document.getElementById('btnSetClip').addEventListener('click', async () => {
-  if (!ensureToken() && !promptForToken()) return;
-  const text = document.getElementById('clipTextarea').value;
-  const statusEl = document.getElementById('clipStatus');
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/phone/clipboard`, {
-      method: 'POST',
-      headers: { ...authHeader(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    statusEl.textContent = 'Pushed to Phone!';
-    setTimeout(() => { statusEl.textContent = ''; }, 3000);
-    fetchClipboard();
-  } catch (err) {
-    alert('Failed to set phone clipboard: ' + err.message);
-  }
-});
-
-document.getElementById('btnCopyBrowserClip').addEventListener('click', () => {
-  const text = document.getElementById('clipTextarea').value;
-  if (!text) return;
-  navigator.clipboard.writeText(text);
-  const statusEl = document.getElementById('clipStatus');
-  statusEl.textContent = 'Copied to PC!';
-  setTimeout(() => { statusEl.textContent = ''; }, 3000);
-});
-
-// Scratchpad Logic
-async function fetchScratchpad() {
-  try {
-    const data = await fetchJson(`${API_BASE_URL}/api/scratchpad`);
-    document.getElementById('scratchpadTextarea').value = data.content || '';
-    if (data.updated_at) {
-      document.getElementById('notesMtime').textContent = 'Last saved: ' + new Date(data.updated_at * 1000).toLocaleTimeString();
-    }
-  } catch (err) {
-    console.warn('Scratchpad fetch error:', err);
-  }
-}
-
-async function saveScratchpad() {
-  if (!ensureToken() && !promptForToken()) return;
-  const content = document.getElementById('scratchpadTextarea').value;
-  const statusEl = document.getElementById('scratchpadStatus');
-  statusEl.textContent = 'Saving...';
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/scratchpad`, {
-      method: 'POST',
-      headers: { ...authHeader(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content })
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    statusEl.textContent = 'Saved ✓';
-    document.getElementById('notesMtime').textContent = 'Last saved: ' + new Date().toLocaleTimeString();
-    setTimeout(() => { statusEl.textContent = 'Auto-saved'; }, 3000);
-  } catch (err) {
-    statusEl.textContent = 'Save error';
-  }
-}
-
-document.getElementById('btnSaveScratchpad').addEventListener('click', saveScratchpad);
-document.getElementById('btnClearScratchpad').addEventListener('click', () => {
-  if (!confirm('Clear all scratchpad notes?')) return;
-  document.getElementById('scratchpadTextarea').value = '';
-  saveScratchpad();
-});
-document.getElementById('btnCopyScratchpad').addEventListener('click', () => {
-  const content = document.getElementById('scratchpadTextarea').value;
-  if (!content) return;
-  navigator.clipboard.writeText(content);
-  alert('Copied all notes to clipboard!');
-});
-
-/* ------------------------------------------------------------
-   Network Device Radar (Wi-Fi Scanner)
------------------------------------------------------------- */
-async function scanNetworkRadar() {
-  const container = document.getElementById('radarGrid');
-  const countEl = document.getElementById('radarDeviceCount');
-  countEl.textContent = 'Scanning subnet...';
-  try {
-    const data = await fetchJson(`${API_BASE_URL}/api/network/radar`);
-    countEl.textContent = `${data.total || 0} devices found`;
-    container.innerHTML = '';
-
-    if (!data.devices || data.devices.length === 0) {
-      container.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-muted); grid-column:1/-1;">No other devices detected on this subnet.</div>';
-      return;
-    }
-
-    data.devices.forEach(d => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.style.padding = '12px 14px';
-      card.style.border = d.is_self ? '1px solid var(--accent)' : '1px solid var(--border)';
-      card.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-          <div style="font-weight:600; font-size:13px; display:flex; align-items:center; gap:6px;">
-            <span>${d.icon}</span>
-            <span>${d.type}</span>
-          </div>
-          <span class="badge ${d.is_self ? 'badge-online' : 'badge-online'}" style="font-size:10.5px; padding:2px 6px;">
-            <span class="dot dot-online"></span> active
-          </span>
-        </div>
-        <div style="font-family:var(--mono); font-size:12px; font-weight:600; color:var(--text-primary); margin-bottom:3px;">
-          ${d.ip}
-        </div>
-        <div style="font-family:var(--mono); font-size:10.5px; color:var(--text-muted);">
-          MAC: ${d.mac}
-        </div>
-      `;
-      container.appendChild(card);
-    });
-
-  } catch (err) {
-    countEl.textContent = 'Scan failed';
-    container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--red); grid-column:1/-1;">Radar scan error: ${err.message}</div>`;
-  }
-}
-
-document.getElementById('btnScanRadar').addEventListener('click', scanNetworkRadar);
 
 /* ------------------------------------------------------------
    File Manager
@@ -1745,10 +1350,6 @@ async function refreshAll() {
   await fetchServices();
   loadFiles(currentPath);
   fetchLogs();
-  snapCamera();
-  fetchClipboard();
-  fetchScratchpad();
-  scanNetworkRadar();
 }
 document.getElementById('btnRefresh').addEventListener('click', refreshAll);
 

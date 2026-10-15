@@ -1,50 +1,45 @@
 # ⚡ Mobile Home Server
 
-> **Ultra low-power personal home server & IoT hub for Android (Termux) and PC. Features built-in battery UPS guard, real-time hardware telemetry, CCTV security cam, local Wi-Fi radar, shared clipboard sync, and zero-config Cloudflare tunnels.**
+> **Ultra low-power personal home server & private cloud for Android (Termux) and PC. Features real-time hardware telemetry, built-in battery UPS monitoring, web file manager with folder uploads, zero-config Cloudflare tunnels, and hardened security.**
 
 [![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-3.x-000000?style=flat&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![Termux](https://img.shields.io/badge/Termux-Supported-10b981?style=flat&logo=android&logoColor=white)](https://termux.dev/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-An ultra-lightweight, self-hosted server and dashboard designed to run seamlessly on Android devices (via [Termux](https://termux.dev)) or on any desktop/laptop (Windows, Linux, macOS).
+An ultra-lightweight, self-hosted home server and dashboard designed to run seamlessly on Android devices (via [Termux](https://termux.dev)) or on any desktop/laptop (Windows, Linux, macOS).
 
 ---
 
 ## 🌟 Why an Android Phone as a Server?
 
-* 🔋 **Built-in Battery UPS**: Immune to sudden power outages — built-in battery keeps the server online.
-* ⚡ **Ultra Low Power**: Draws only ~2–4W compared to 60–100W+ for desktop servers.
-* 📷 **Built-in Sensors & Hardware**: Camera, flashlight, battery sensors, Wi-Fi, and 4G/5G connectivity in one pocketable device.
-* ♻️ **Upcycle Old Hardware**: Give old smartphones a productive second life instead of letting them sit in drawers.
+* 🔋 **Built-in Battery UPS**: Immune to sudden power outages — the phone's internal battery keeps the server online 24/7.
+* ⚡ **Ultra Low Power**: Consumes only ~2–4W compared to 60–100W+ for traditional desktop or rack servers.
+* 📶 **Always Connected**: Built-in Wi-Fi and cellular failover capabilities in a compact, silent footprint.
+* ♻️ **Upcycle Old Hardware**: Turn spare smartphones into dependable personal cloud storage and compute servers.
 
 ---
 
 ## ✨ Features
 
-### 🚀 Phone Superpowers (Hardware Integration)
-* 📸 **CCTV / IP Webcam**: Live camera viewfinder with front/back camera switching and an auto-refreshing 5s CCTV surveillance mode.
-* 🔦 **Remote Flashlight / Torch**: Remotely toggle the phone's physical flash LED with one click.
-* 🗣️ **Text-to-Speech (TTS)**: Broadcast voice announcements through the phone's speaker directly from your browser.
-* 📳 **Haptic / Alarm Alert**: Remotely vibrate the phone for alerts.
-* 🔋 **Battery Health Guard**: Continuous monitoring of battery level and temperature with smart advisory alerts to prevent battery swelling when plugged in 24/7.
-* 📋 **Universal Clipboard Sync**: Seamlessly read or push text between your computer and the phone's system clipboard with one click.
-
-### 📡 Network Radar & Utilities
-* 📡 **Network Device Radar (Wi-Fi Scanner)**: Discover active client devices, routers, and IoT hardware connected to your local Wi-Fi subnet with IP and MAC resolution.
-* 📝 **Persistent Scratchpad**: Shared sticky notes for code snippets, to-dos, and quick notes auto-saved directly to your server.
-
 ### 📊 Real-Time Telemetry & Visuals
 * 📈 **60-Second Real-Time Telemetry Graph**: Smooth canvas chart displaying real-time CPU %, RAM %, and network traffic over the last minute.
-* 🌓 **Dark / Light Mode**: Modern interface with an obsidian dark theme, emerald accents, and theme persistence.
-* 📱 **Instant Wi-Fi QR Connect**: Display an offline QR code to connect mobile phones or laptops on your local network instantly without typing IP addresses.
-* 🌐 **Zero-Config Remote Access**: 1-click toggle for Cloudflare Tunnel (`cloudflared`) to access your server globally over HTTPS without port forwarding.
+* 🔋 **Battery UPS & Health Guard**: Continuous battery level and temperature monitoring with smart advisory alerts to prevent battery swelling during 24/7 wall power.
+* 🌓 **Dark / Light Mode**: Modern responsive interface with an obsidian dark theme, emerald accents, and theme persistence.
+* 📱 **Instant Wi-Fi QR Connect**: Built-in QR code modal to connect mobile devices or laptops on your local network instantly without typing IP addresses.
+* 🌐 **Zero-Config Remote Access**: 1-click Cloudflare Tunnel (`cloudflared`) to access your server globally over HTTPS without port forwarding or exposing your home IP.
 
-### 📁 Cloud Storage & Media Sharing
-* 📁 **Web File Manager**: Browse, create folders, download, rename, and delete files.
+### 📁 Cloud Storage & File Manager
+* 📁 **Web File Manager**: Browse, create folders, download, rename, and delete files safely.
 * 📂 **Folder Upload**: Upload entire directories with nested hierarchies preserved.
-* 🎬 **In-line Media Preview**: Stream videos, music, and images directly in the browser.
-* 🔒 **Hardened Security**: Timing-safe token authentication (`secrets.compare_digest`), automated brute-force IP rate-limiting, and blocked executable uploads.
+* 🎬 **In-line Media Preview**: Stream videos, music, and view photos directly inside the browser.
+* 🛡️ **Sandboxed Storage**: Access is strictly isolated to `~/server/shared/`, preventing directory traversal escapes (`../`).
+
+### ⚙️ Server Management & Security
+* ⚡ **Services Grid**: Real-time status monitoring and PID tracking for Web, API, and SSH services.
+* 🔄 **Server Controls**: Safe 1-click start, stop, and restart controls for core services.
+* 📜 **Live Audit Log Viewer**: Real-time server and access logs with auto-refresh and secure log-clearing.
+* 🔒 **Hardened Security**: Timing-safe token authentication (`secrets.compare_digest`), IP rate-limiting with lockout protection, upload extension verification, and HTTP security headers.
 
 ---
 
@@ -96,7 +91,7 @@ An ultra-lightweight, self-hosted server and dashboard designed to run seamlessl
      ```bash
      python run_local.py
      ```
-   The script will launch both services, print your access token, and open the dashboard in your default browser automatically.
+   The runner will start both services, output your access token, and automatically open the dashboard in your default browser.
 
 ---
 
@@ -104,8 +99,8 @@ An ultra-lightweight, self-hosted server and dashboard designed to run seamlessl
 
 ```text
 mobile-home-server/
-├── api.py              # Flask backend REST API (telemetry, phone controls, files, logs)
-├── index.html          # Frontend web dashboard (telemetry charts, camera, file manager)
+├── api.py              # Flask backend REST API (telemetry, storage, services, logs)
+├── index.html          # Frontend web dashboard (telemetry chart, file manager, tunnel)
 ├── run_local.py        # Cross-platform runner for Windows / macOS / Linux
 ├── start-local.bat     # One-click Windows batch launcher
 ├── start-all.sh        # Background launcher for Termux / Linux
@@ -121,9 +116,9 @@ mobile-home-server/
 
 ## 🔒 Security Model
 
-* **Sandboxed Storage**: File Manager access is strictly confined to `~/server/shared/`. Path traversal (`../`, absolute paths, symlinks) is blocked via sanitized paths.
-* **Token Authentication**: Modifying files, server controls, and phone hardware features require the `Authorization: Bearer <token>` header. Tokens are generated locally on first startup in `.token`.
-* **Private Network First**: By default, CORS is constrained to local network and private IP subnets (10.x, 172.16-31.x, 192.168.x, localhost).
+* **Sandboxed Storage**: File Manager access is strictly confined to `~/server/shared/`. Path traversal (`../`, absolute paths, symlinks) is blocked via sanitized path resolution.
+* **Token Authentication**: Modifying files, server controls, and logs require the `Authorization: Bearer <token>` header. A cryptographically random token is generated on initial run in `.token`.
+* **Private Network First**: CORS is constrained to private network subnets (10.x, 172.16-31.x, 192.168.x, localhost).
 * **Safe Error Handling**: Unhandled errors return sanitized JSON responses without leaking Python tracebacks.
 
 ---
