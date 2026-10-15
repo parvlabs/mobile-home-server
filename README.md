@@ -1,4 +1,4 @@
-# ⚡ Mobile Home Server
+# ⚡ Mobile Hosted Server
 
 > **Ultra low-power personal home server & private cloud for Android (Termux) and PC. Features real-time hardware telemetry, built-in battery UPS monitoring, web file manager with folder uploads, zero-config Cloudflare tunnels, and hardened security.**
 
@@ -55,7 +55,7 @@ An ultra-lightweight, self-hosted home server and dashboard designed to run seam
    ```
 3. **Clone the repository**:
    ```bash
-   git clone https://github.com/parvlabs/mobile-home-server.git ~/server
+   git clone https://github.com/parvlabs/mobile-hosted-server.git ~/server
    cd ~/server
    ```
 4. **Install Python dependencies**:
@@ -78,8 +78,8 @@ An ultra-lightweight, self-hosted home server and dashboard designed to run seam
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/parvlabs/mobile-home-server.git
-   cd mobile-home-server
+   git clone https://github.com/parvlabs/mobile-hosted-server.git
+   cd mobile-hosted-server
    ```
 2. **Install dependencies**:
    ```bash
@@ -98,7 +98,7 @@ An ultra-lightweight, self-hosted home server and dashboard designed to run seam
 ## 📂 Project Structure
 
 ```text
-mobile-home-server/
+mobile-hosted-server/
 ├── api.py              # Flask backend REST API (telemetry, storage, services, logs)
 ├── index.html          # Frontend web dashboard (telemetry chart, file manager, tunnel)
 ├── run_local.py        # Cross-platform runner for Windows / macOS / Linux

@@ -1,5 +1,5 @@
 """
-Samsung A23 Server — Flask API
+Mobile Hosted Server — Flask API
 --------------------------------------------------------------
 Run with:
     python3 api.py
@@ -589,7 +589,7 @@ def dashboard_home():
     index_path = os.path.join(SERVER_DIR, "index.html")
     if os.path.isfile(index_path):
         return send_file(index_path)
-    return jsonify({"message": "Samsung A23 Server API is running"}), 200
+    return jsonify({"message": "Mobile Hosted Server API is running"}), 200
 
 
 @app.route("/api/status", methods=["GET"])
@@ -1264,7 +1264,7 @@ def control(action):
 if __name__ == "__main__":
     log_event("Server API starting up")
     print("=" * 64)
-    print("Samsung A23 Server API")
+    print("Mobile Hosted Server API")
     print(f"Listening on 0.0.0.0:{API_PORT}")
     print()
     print("API access token (needed for File Manager & Server Controls):")
